@@ -49,7 +49,7 @@ git clone https://github.com/yourusername/naiana-accessibility-hub.git
 
 ## Live Link
 
-[Access N.A.I.N.A Online](https://your-live-link-here.com)
+[Access N.A.I.N.A](https://glittery-profiterole-34933f.netlify.app/)
 
 ## Usage
 
@@ -117,3 +117,4 @@ MIT License.
 ---
 
 This README provides all the necessary information for understanding, running, and contributing to the N.A.I.N.A Accessibility Hub project.
+
