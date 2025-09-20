@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>N.A.I.N.A | Neural Accessibility & Interaction for Natural Assistance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); border-radius: 1.5rem; padding: 1rem; }
+    #signCanvas { position: absolute; top: 0; left: 0; }
+    #signWrapper { position: relative; display: inline-block; }
+    #signResult { margin-top: 10px; padding: 10px; border-radius: 10px; background: rgba(0,0,0,0.3); color: white; min-height: 50px; }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 10px 20px; border-radius: 10px; opacity: 0.9; z-index: 1000;}
+  </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen text-white">
+
+  <!-- Navbar -->
+  <nav class="glass fixed top-0 left-0 w-full z-50 p-4 flex justify-center items-center shadow-lg relative">
+    <img src="logo1.png" alt="Logo" width="80" height="40" class="absolute left-4">
+    <h1 class="text-2xl font-extrabold text-center">♿ N.A.I.N.A | Neural Accessibility & Interaction for Natural Assistance</h1>
+  </nav>
+
+  <!-- Hero -->
+  <header class="pt-28 text-center px-45">
+
+    <h1 class="mt-4 text-lg opacity-90 max-w-2xl mx-auto">
+      OCR, Live OCR, TTS, STT, Reader Mode, Font Adjuster, and Working Sign Language Recognition!
+    </h1>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-16 space-y-16">
+
+    <!-- OCR -->
+    <section class="glass p-8">
+      <h3 class="text-3xl font-bold mb-4">📷 Image to Text (OCR)</h3>
+      <input type="file" id="imageInput" accept="image/*" class="w-full p-3 bg-white/20 rounded-xl">
+      <button onclick="doOCR()" class="mt-4 bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-xl hover:bg-yellow-500">Run OCR & Speak</button>
+      <div id="progress" class="mt-3 text-sm">Progress: 0%</div>
+      <div id="result" class="mt-4 bg-black/30 p-4 rounded-xl min-h-[100px]">Extracted text will appear here...</div>
+    </section>
+
+    <!-- Live Camera OCR -->
+    <section class="glass p-8">
+      <h3 class="text-3xl font-bold mb-4">📹 Live Camera OCR</h3>
+      <video id="video" autoplay playsinline class="w-full rounded-xl mb-4"></video>
+      <div class="flex gap-3 flex-wrap">
+        <button onclick="startCameraOCR()" class="bg-yellow-400 text-gray-900 px-6 py-3 rounded-xl hover:bg-yellow-500">Start Live OCR</button>
+        <button onclick="stopCameraOCR()" class="bg-red-500 text-gray-900 px-6 py-3 rounded-xl hover:bg-red-600">Stop Live OCR</button>
+      </div>
+      <div id="cameraResult" class="mt-4 bg-black/30 p-4 rounded-xl min-h-[100px]">Live OCR output...</div>
+    </section>
+
+    <!-- TTS -->
+    <section class="glass p-8">
+      <h3 class="text-3xl font-bold mb-4">🔊 Text to Speech</h3>
+      <textarea id="ttsInput" rows="4" placeholder="Type text here..." class="w-full p-3 rounded-xl text-gray-900"></textarea>
+      <button onclick="speakText()" class="mt-4 bg-green-400 px-4 py-2 rounded-xl hover:bg-green-500">Speak</button>
+      <button onclick="stopSpeech()" class="mt-4 bg-red-500 px-4 py-2 rounded-xl hover:bg-red-600">Stop</button>
+    </section>
+
+    <!-- STT -->
+    <section class="glass p-8">
+      <h3 class="text-3xl font-bold mb-4">🎤 Speech to Text</h3>
+      <button onclick="startRecognition()" class="bg-purple-400 px-5 py-2 rounded-xl hover:bg-purple-500">Start</button>
+      <button onclick="stopRecognition()" class="bg-red-500 px-5 py-2 rounded-xl hover:bg-red-600">Stop</button>
+      <div id="speechResult" class="mt-4 bg-black/30 p-4 rounded-xl min-h-[80px]">Your speech will appear here...</div>
+    </section>
+
+    <!-- Sign Language -->
+    <section class="glass p-8">
+      <h3 class="text-3xl font-bold mb-4">🤟 Sign Language Recognition</h3>
+      <div id="signWrapper">
+        <video id="signVideo" autoplay playsinline class="rounded-xl"></video>
+        <canvas id="signCanvas"></canvas>
+      </div>
+      <div id="signResult">Waiting for gesture...</div>
+    </section>
+
+    <!-- Font Adjust -->
+    <section class="glass p-8">
+      <h3 class="text-3xl font-bold mb-4">🔎 Font Size Adjuster</h3>
+      <button onclick="adjustFont('increase')" class="bg-blue-400 px-4 py-2 rounded-xl hover:bg-blue-500">A+</button>
+      <button onclick="adjustFont('decrease')" class="bg-blue-400 px-4 py-2 rounded-xl hover:bg-blue-500">A-</button>
+      <button onclick="adjustFont('reset')" class="bg-gray-200 text-gray-900 px-4 py-2 rounded-xl hover:bg-gray-300">Reset</button>
+    </section>
+
+    <!-- Screen Reader -->
+    <section class="glass p-8">
+      <h3 class="text-3xl font-bold mb-4">🗣 Screen Reader Mode</h3>
+      <p class="opacity-90">Highlight text and it will be read aloud automatically.</p>
+      <button onclick="toggleReader()" class="mt-4 bg-pink-400 px-6 py-2 rounded-xl hover:bg-pink-500">Toggle Reader Mode</button>
+    </section>
+
+  </main>
+
+  <footer class="text-center py-6 opacity-80">
+    <p>💡 Team HangmanxRooster 2025</p>
+  </footer>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.2.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fingerpose@0.1.0/dist/fingerpose.min.js"></script>
+
+  <script>
+    /* ---------------- OCR ---------------- */
+    async function doOCR() {
+      const file = document.getElementById("imageInput").files[0];
+      if (!file) return;
+      const resultBox = document.getElementById("result");
+      const progressBox = document.getElementById("progress");
+
+      const { data: { text } } = await Tesseract.recognize(file, 'eng', {
+        logger: m => { 
+          if (m.status === 'recognizing text') 
+            progressBox.textContent = `Progress: ${Math.round(m.progress*100)}%`; 
+        }
+      });
+
+      resultBox.textContent = text;
+
+      // Automatically speak extracted text
+      if (text.trim() !== "") {
+        const msg = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(msg);
+      }
+    }
+
+    /* ---------------- Live OCR ---------------- */
+    let liveStream, liveInterval;
+    async function startCameraOCR() {
+      const video = document.getElementById("video");
+      liveStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = liveStream;
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      liveInterval = setInterval(async () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+        const output = text || "Reading...";
+        document.getElementById("cameraResult").textContent = output;
+
+        // Speak live OCR text
+        if (output.trim() !== "" && output.trim() !== "Reading...") {
+          const msg = new SpeechSynthesisUtterance(output);
+          window.speechSynthesis.speak(msg);
+        }
+      }, 3000); // every 3 seconds
+    }
+
+    function stopCameraOCR() {
+      clearInterval(liveInterval);
+      liveStream.getTracks().forEach(track => track.stop());
+    }
+
+    /* ---------------- TTS ---------------- */
+    function speakText() {
+      const msg = new SpeechSynthesisUtterance(document.getElementById("ttsInput").value);
+      window.speechSynthesis.speak(msg);
+    }
+    function stopSpeech() { window.speechSynthesis.cancel(); }
+
+    /* ---------------- STT ---------------- */
+    let recognition;
+    function startRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.continuous = true;
+      recognition.onresult = e => {
+        document.getElementById("speechResult").textContent = e.results[e.results.length-1][0].transcript;
+      };
+      recognition.start();
+    }
+    function stopRecognition() { if (recognition) recognition.stop(); }
+
+    /* ---------------- Font Adjust ---------------- */
+    function adjustFont(action) {
+      const body = document.body;
+      const style = window.getComputedStyle(body).fontSize;
+      let size = parseFloat(style);
+      if (action === "increase") size += 2;
+      else if (action === "decrease") size -= 2;
+      else size = 16;
+      body.style.fontSize = size + "px";
+    }
+
+    /* ---------------- Screen Reader ---------------- */
+    let readerEnabled = false;
+    function toggleReader() {
+      readerEnabled = !readerEnabled;
+      if (readerEnabled) document.addEventListener("mouseup", readerHandler);
+      else document.removeEventListener("mouseup", readerHandler);
+    }
+    function readerHandler() {
+      const text = window.getSelection().toString();
+      if (text) window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+    }
+
+    /* ---------------- Sign Language ---------------- */
+    const videoEl = document.getElementById("signVideo");
+    const canvasEl = document.getElementById("signCanvas");
+    const ctx = canvasEl.getContext("2d");
+    const resultBox = document.getElementById("signResult");
+    let handModel;
+
+    async function setupSignCamera() {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      videoEl.srcObject = stream;
+      return new Promise(resolve => { videoEl.onloadedmetadata = () => resolve(); });
+    }
+
+    function drawKeypoints(predictions) {
+      ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+      predictions.forEach(prediction => {
+        prediction.landmarks.forEach(([x,y]) => {
+          ctx.beginPath();
+          ctx.arc(x, y, 5, 0, 2*Math.PI);
+          ctx.fillStyle = "yellow";
+          ctx.fill();
+        });
+      });
+    }
+
+    async function runSign() {
+      await setupSignCamera();
+      canvasEl.width = videoEl.videoWidth;
+      canvasEl.height = videoEl.videoHeight;
+      handModel = await handpose.load();
+
+      const GE = new fp.GestureEstimator([ fp.Gestures.ThumbsUpGesture, fp.Gestures.VictoryGesture ]);
+
+      setInterval(async () => {
+        const predictions = await handModel.estimateHands(videoEl);
+        if (predictions.length > 0) {
+          drawKeypoints(predictions);
+          const est = GE.estimate(predictions[0].landmarks, 8.5);
+          if (est.gestures.length > 0) {
+            const result = est.gestures.reduce((p,c) => (p.confidence > c.confidence ? p : c));
+            resultBox.innerText = "Detected: " + result.name;
+          } else resultBox.innerText = "Hand detected, no gesture recognized.";
+        } else {
+          ctx.clearRect(0,0,canvasEl.width,canvasEl.height);
+          resultBox.innerText = "No hand detected.";
+        }
+      }, 300);
+    }
+
+    runSign();
+  </script>
+</body>
+</html>
